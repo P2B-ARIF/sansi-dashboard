@@ -1,36 +1,37 @@
-
 import { ResponsivePie } from "@nivo/pie";
 
-const PieCharts = () => {
+const PieCharts = ({ pLength }) => {
+	const { shirt, tShirt, poloShirt, panjabi, pajama } = pLength;
+
 	const data = [
 		{
-			id: "go",
-			label: "go",
-			value: 372,
+			id: "Shirt",
+			label: "Shirt",
+			value: shirt,
 			color: "hsl(232, 70%, 50%)",
 		},
 		{
-			id: "sass",
-			label: "sass",
-			value: 20,
+			id: "T-Shirt",
+			label: "T-Shirt",
+			value: tShirt,
 			color: "hsl(343, 70%, 50%)",
 		},
 		{
-			id: "python",
-			label: "python",
-			value: 482,
+			id: "Polo-Shirt",
+			label: "Polo-Shirt",
+			value: poloShirt,
 			color: "hsl(336, 70%, 50%)",
 		},
 		{
-			id: "haskell",
-			label: "haskell",
-			value: 236,
+			id: "Panjabi",
+			label: "Panjabi",
+			value: panjabi,
 			color: "hsl(98, 70%, 50%)",
 		},
 		{
-			id: "ruby",
-			label: "ruby",
-			value: 497,
+			id: "Pajama",
+			label: "Pajama",
+			value: pajama,
 			color: "hsl(42, 70%, 50%)",
 		},
 	];
@@ -79,52 +80,35 @@ const PieCharts = () => {
 			fill={[
 				{
 					match: {
-						id: "ruby",
-					},
-					id: "dots",
-				},
-				{
-					match: {
-						id: "c",
-					},
-					id: "dots",
-				},
-				{
-					match: {
-						id: "go",
-					},
-					id: "dots",
-				},
-				{
-					match: {
-						id: "python",
-					},
-					id: "dots",
-				},
-				{
-					match: {
-						id: "scala",
+						id: "Shirt",
 					},
 					id: "lines",
 				},
 				{
 					match: {
-						id: "lisp",
+						id: "T-Shirt",
+					},
+					id: "dots",
+				},
+				{
+					match: {
+						id: "Polo-Shirt",
 					},
 					id: "lines",
 				},
 				{
 					match: {
-						id: "elixir",
+						id: "Panjabi",
 					},
-					id: "lines",
+					id: "dots",
 				},
 				{
 					match: {
-						id: "javascript",
+						id: "Pajama",
 					},
 					id: "lines",
 				},
+				
 			]}
 			legends={[
 				{
@@ -134,12 +118,12 @@ const PieCharts = () => {
 					translateX: 0,
 					translateY: 56,
 					itemsSpacing: 0,
-					itemWidth: 70,
+					itemWidth: 75,
 					itemHeight: 18,
 					itemTextColor: "#999",
 					itemDirection: "left-to-right",
 					itemOpacity: 1,
-					symbolSize: 18,
+					symbolSize: 16,
 					symbolShape: "circle",
 					effects: [
 						{

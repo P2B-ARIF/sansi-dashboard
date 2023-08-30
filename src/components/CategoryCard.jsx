@@ -1,10 +1,10 @@
-import { Button, IconButton } from "@chakra-ui/react";
+import { Button } from "@chakra-ui/react";
 import React from "react";
 import { BsFillTrash2Fill } from "react-icons/bs";
 
-const CategoryCard = ({ data }) => {
+const CategoryCard = ({ data, handleDelete }) => {
 	return (
-		<div className='rounded-lg bg-slate-200 relative'>
+		<div className='rounded-lg relative shadow-md overflow-hidden'>
 			<img
 				src={`${
 					data
@@ -12,26 +12,24 @@ const CategoryCard = ({ data }) => {
 						: "https://www.generationsforpeace.org/wp-content/uploads/2018/03/empty.jpg"
 				}`}
 				alt=''
-				className='rounded-lg h-[180px] w-full object-cover'
+				className='h-[180px] w-full object-cover'
 			/>
-			<div className='absolute top-2 right-2 z-10'>
-				<IconButton
-					size={"sm"}
-					colorScheme='teal'
-					aria-label='Send email'
-					icon={<BsFillTrash2Fill />}
-				/>
-			</div>
-			<div className='flex justify-end absolute bottom-1 right-1 z-10'>
+			<div className='absolute top-1 right-1 z-10'>
 				<Button
-					// paddingX={"6px"}
+					onClick={() => handleDelete(data._id)}
+					alignItems={"center"}
+					display={"flex"}
+					gap={"2px"}
 					className='capitalize'
-					colorScheme='pink'
-					size={"sm"}
+					colorScheme='red'
+					size={"xs"}
 				>
-					{data?.category}
+					<BsFillTrash2Fill size={13} /> Delete
 				</Button>
 			</div>
+			<h4 className='text-center uppercase bg-slate-700 text-slate-200 font-medium py-1'>
+				{data?.category}
+			</h4>
 		</div>
 	);
 };

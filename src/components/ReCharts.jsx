@@ -248,7 +248,7 @@ const renderCustomBarLabel = ({ payload, x, y, width, height, value }) => {
 	);
 };
 
-const ReCharts = () => {
+const ReCharts = ({ pLength }) => {
 	return (
 		<BarChart width={1100} height={300} data={data}>
 			<XAxis dataKey='name' tick={renderCustomAxisTick} />

@@ -1,8 +1,15 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
 
 export const fetchCategory = createAsyncThunk("category", async () => {
-	const response = await fetch(
-		`${process.env.REACT_APP_SERVER_URL}/product/category`,
+	const response = await axios.get(
+		`${process.env.REACT_APP_SERVER_URL}/admin/category`,
+		{
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${JSON.parse(localStorage.getItem("token_"))}`,
+			},
+		},
 	);
 	return response.json();
 });

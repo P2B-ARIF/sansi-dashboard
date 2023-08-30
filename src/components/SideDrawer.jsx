@@ -1,6 +1,7 @@
 import React from "react";
 import {
 	MdHistoryToggleOff,
+	MdOutlineCancelScheduleSend,
 	MdOutlineClose,
 	MdOutlineDashboard,
 	MdOutlineSettingsSuggest,
@@ -10,12 +11,16 @@ import { Link, useParams } from "react-router-dom";
 import { BiStats } from "react-icons/bi";
 import { BsBagCheck } from "react-icons/bs";
 import { PiRoadHorizonLight } from "react-icons/pi";
+import { IoFlashOutline } from "react-icons/io5";
 
 const SideDrawer = ({ toggle, setToggle }) => {
 	const { products } = useParams();
+	const url = window.location.pathname;
 
 	return (
-		<div className={`w-full  min-h-[100vh] h-full bg-[#212B36] text-slate-200 px-8`}>
+		<div
+			className={`w-full  min-h-[100vh] h-full bg-[#212B36] text-slate-200 px-8`}
+		>
 			<div className='flex justify-between items-center'>
 				<h1 className='animate-charcter cursor-pointer uppercase text-2xl font-bold py-4 tracking-widest min-w-[180px]'>
 					Sansi
@@ -109,17 +114,45 @@ const SideDrawer = ({ toggle, setToggle }) => {
 				Orders
 			</h5>
 			<ul className='dashboard_nav_menu'>
-				<li>
+				<li
+					className={`${
+						url.endsWith("pending")
+							? "active_product_link"
+							: "inactive_product_link"
+					}`}
+				>
 					<MdPendingActions />
 					<Link to={"/dashboard/order/pending"}>Pending</Link>
 				</li>
-				<li>
+				<li
+					className={`${
+						url.endsWith("on-way")
+							? "active_product_link"
+							: "inactive_product_link"
+					}`}
+				>
 					<PiRoadHorizonLight />
 					<Link to={"/dashboard/order/on-way"}>On Way</Link>
 				</li>
-				<li>
+				<li
+					className={`${
+						url.endsWith("completed")
+							? "active_product_link"
+							: "inactive_product_link"
+					}`}
+				>
 					<BsBagCheck />
 					<Link to={"/dashboard/order/completed"}>Completed</Link>
+				</li>
+				<li
+					className={`${
+						url.endsWith("rejected")
+							? "active_product_link"
+							: "inactive_product_link"
+					}`}
+				>
+					<MdOutlineCancelScheduleSend />
+					<Link to={"/dashboard/order/rejected"}>Rejected</Link>
 				</li>
 			</ul>
 
@@ -127,13 +160,35 @@ const SideDrawer = ({ toggle, setToggle }) => {
 				Others
 			</h5>
 			<ul className='dashboard_nav_menu'>
-				<li>
+				<li
+					className={`${
+						url.endsWith("history")
+							? "active_product_link"
+							: "inactive_product_link"
+					}`}
+				>
 					<MdHistoryToggleOff />
 					<Link to={"/dashboard/order/history"}>History</Link>
 				</li>
-				<li>
+				<li
+					className={`${
+						url.endsWith("status")
+							? "active_product_link"
+							: "inactive_product_link"
+					}`}
+				>
 					<BiStats />
-					<Link to={"/dashboard/added/history"}>Add Status</Link>
+					<Link to={"/dashboard/order/status"}>Add Status</Link>
+				</li>
+				<li
+					className={`${
+						url.endsWith("flash")
+							? "active_product_link"
+							: "inactive_product_link"
+					} text-teal-500`}
+				>
+					<IoFlashOutline />
+					<Link to={"/dashboard/order/flash"}>Flash Sale</Link>
 				</li>
 			</ul>
 		</div>

@@ -2,10 +2,21 @@ import React, { useState } from "react";
 import SideDrawer from "../components/SideDrawer";
 import { Outlet } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { removeUser } from "../toolkit/UserSlice";
 
 const Dashboard = () => {
 	const [toggle, setToggle] = useState(false);
-	
+	const { user, loading } = useSelector(state => state.user);
+	const dispatch = useDispatch();
+
+	useEffect(() => {
+		if (user?.access === false && loading === false) {
+			dispatch(removeUser());
+		}
+	}, [user, dispatch, loading]);
+
 	return (
 		<div className='flex relative overflow-hidden'>
 			<div

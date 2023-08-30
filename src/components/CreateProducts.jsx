@@ -7,6 +7,7 @@ import { useToast } from "@chakra-ui/react";
 import { format } from "date-fns";
 import CreateDesc from "./CreateDesc";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const CreateProducts = () => {
 	const [images, setImages] = useState(null);
@@ -15,6 +16,7 @@ const CreateProducts = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [cate, setCate] = useState("");
 	const [desc, setDesc] = useState(null);
+	const navigate = useNavigate();
 
 	const { specification, isLoading: loading } = useSelector(
 		state => state.categorySpec,
@@ -40,7 +42,6 @@ const CreateProducts = () => {
 			console.log("first");
 			const url =
 				"https://api.imgbb.com/1/upload?key=6226ca30d95b139a79184223cfbc266a";
-			console.log("first");
 
 			for (const imageUrl of images) {
 				const formData = new FormData();
@@ -105,9 +106,15 @@ const CreateProducts = () => {
 
 		if (imageUrl.length > 0) {
 			await axios
-				.post(`${process.env.REACT_APP_SERVER_URL}/product/create`, create)
+				.post(`${process.env.REACT_APP_SERVER_URL}/admin/create`, create, {
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${JSON.parse(
+							localStorage.getItem("token_"),
+						)}`,
+					},
+				})
 				.then(res => {
-					console.log(res.data);
 					toast({
 						title: "Product created.",
 						description: "We've created your product for you.",
@@ -117,6 +124,7 @@ const CreateProducts = () => {
 						isClosable: true,
 					});
 					setIsLoading(false);
+					navigate("/dashboard");
 				})
 				.catch(err => {
 					setIsLoading(false);

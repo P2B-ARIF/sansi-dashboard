@@ -1,15 +1,54 @@
 import React from "react";
 import { Button, Th, Thead } from "@chakra-ui/react";
-import { BsBell } from "react-icons/bs";
 import { Table, Tbody, Tr, Td, TableContainer } from "@chakra-ui/react";
 import ReCharts from "./../components/ReCharts";
 import PieCharts from "./../components/PieCharts";
 import { Link } from "react-router-dom";
-import { format } from "date-fns";
+import OrderStats from "../components/stats/OrderStats";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { useState } from "react";
+import { GetFetchLength } from "../api/stats";
+import { removeUser } from "../toolkit/UserSlice";
+import { ProductStats } from "../components/stats/ProductStats";
 
 const DashboardHome = () => {
-	const fns = format(new Date(), "pp");
-	console.log(fns, "fns");
+	const dispatch = useDispatch();
+	const [oLoading, setOLoading] = useState(null);
+	const [oLength, setOLength] = useState([]);
+	const [pLoading, setPLoading] = useState(null);
+	const [pLength, setPLength] = useState([]);
+
+	useEffect(() => {
+		setOLoading(true);
+		setPLoading(true);
+		const fetch = async () => {
+			try {
+				const OLength = await GetFetchLength("orderLength");
+				const PLength = await GetFetchLength("productsLength");
+
+				if (OLength.pendingOrder) {
+					setOLength(OLength);
+					setOLoading(false);
+				}
+				if (PLength.shirt) {
+					setPLength(PLength);
+					setPLoading(false);
+				}
+
+				if (OLength.access === false) {
+					dispatch(removeUser());
+					localStorage.removeItem("token_");
+				}
+			} catch (error) {
+				console.error("Error in useEffect:", error);
+			} finally {
+				setOLoading(false);
+				setPLoading(false);
+			}
+		};
+		fetch();
+	}, [dispatch]);
 
 	return (
 		<div className='pb-20'>
@@ -23,58 +62,17 @@ const DashboardHome = () => {
 					</div>
 
 					<Link to={"/dashboard/create"}>
-						<Button size={{ base: "sm", md: "md" }}>Create New Product</Button>
+						<Button size={{ base: "sm", md: "md" }} colorScheme='teal'>
+							Create New Product
+						</Button>
 					</Link>
 				</div>
 				<div className='relative left-0 top-10 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-4 gap-5'>
-					<div className='rounded-lg bg-white p-5 border border-slate-300 shadow-md'>
-						<div className='flex justify-between items-center text-xl'>
-							<h3 className='text-2xl'>Projects</h3>
-							<BsBell />
-						</div>
-						<span className='text-4xl font-bold text-slate-700 flex'>18</span>
-						<h3 className='text-slate-600'>2 Completed</h3>
-					</div>
-					<div className='rounded-lg bg-white p-5 border border-slate-300 shadow-md'>
-						<div className='flex justify-between items-center text-xl'>
-							<h3 className='text-2xl'>Projects</h3>
-							<BsBell />
-						</div>
-						<span className='text-4xl font-bold text-slate-700 flex'>18</span>
-						<h3 className='text-slate-600'>2 Completed</h3>
-					</div>
-					<div className='rounded-lg bg-white p-5 border border-slate-300 shadow-md'>
-						<div className='flex justify-between items-center text-xl'>
-							<h3 className='text-2xl'>Projects</h3>
-							<BsBell />
-						</div>
-						<span className='text-4xl font-bold text-slate-700 flex'>18</span>
-						<h3 className='text-slate-600'>2 Completed</h3>
-					</div>
-					<div className='rounded-lg bg-white p-5 border border-slate-300 shadow-md'>
-						<div className='flex justify-between items-center text-xl'>
-							<h3 className='text-2xl'>Projects</h3>
-							<BsBell />
-						</div>
-						<span className='text-4xl font-bold text-slate-700 flex'>18</span>
-						<h3 className='text-slate-600'>2 Completed</h3>
-					</div>
-					<div className='rounded-lg bg-white p-5 border border-slate-300 shadow-md'>
-						<div className='flex justify-between items-center text-xl'>
-							<h3 className='text-2xl'>Projects</h3>
-							<BsBell />
-						</div>
-						<span className='text-4xl font-bold text-slate-700 flex'>18</span>
-						<h3 className='text-slate-600'>2 Completed</h3>
-					</div>
-					<div className='rounded-lg bg-white p-5 border border-slate-300 shadow-md'>
-						<div className='flex justify-between items-center text-xl'>
-							<h3 className='text-2xl'>Projects</h3>
-							<BsBell />
-						</div>
-						<span className='text-4xl font-bold text-slate-700 flex'>18</span>
-						<h3 className='text-slate-600'>2 Completed</h3>
-					</div>
+					{/* product stat product length of every category */}
+					<ProductStats pLength={pLength} pLoading={pLoading} />
+
+					{/* order stat pending onWay rejected and delivered */}
+					<OrderStats oLength={oLength} oLoading={oLoading} />
 				</div>
 			</div>
 			<br /> <br /> <br /> <br />
@@ -114,7 +112,7 @@ const DashboardHome = () => {
 				</div>
 
 				<div className='md:w-1/3 mx-5'>
-					<PieCharts />
+					<PieCharts pLength={pLength} />
 				</div>
 			</div>
 			<div className='mx-2 md:mx-0 m-10 p-5 border border-blue-400 rounded-lg'>

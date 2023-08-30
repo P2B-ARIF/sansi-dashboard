@@ -19,7 +19,15 @@ const productsSlice = createSlice({
 		products: [],
 		isLoading: false,
 		error: null,
+		pendingOrders: null,
 	},
+
+	reducers: {
+		addPendingOrders(state, action) {
+			state.pendingOrders = action.payload;
+		},
+	},
+
 	extraReducers: builder => {
 		builder.addCase(fetchProducts.pending, state => {
 			state.isLoading = true;
@@ -35,4 +43,5 @@ const productsSlice = createSlice({
 	},
 });
 
+export const { addPendingOrders } = productsSlice.actions;
 export default productsSlice.reducer;

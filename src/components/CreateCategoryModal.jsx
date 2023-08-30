@@ -15,7 +15,7 @@ import { AiFillCamera } from "react-icons/ai";
 import { useEffect } from "react";
 import axios from "axios";
 
-const CreateCategoryModal = ({ isOpen, onClose }) => {
+const CreateCategoryModal = ({ isOpen, onClose, setHit }) => {
 	const [images, setImages] = useState(null);
 	const [imageUrl, setImageUrl] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
@@ -48,12 +48,18 @@ const CreateCategoryModal = ({ isOpen, onClose }) => {
 			category,
 		};
 		await axios
-			.post(`${process.env.REACT_APP_SERVER_URL}/product/create_category`, data)
+			.post(`${process.env.REACT_APP_SERVER_URL}/admin/create_category`, data, {
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${JSON.parse(localStorage.getItem("token_"))}`,
+				},
+			})
 			.then(res => {
 				onClose();
 				setIsLoading(false);
 				setImageUrl("");
 				setCategory(null);
+				setHit("success");
 				console.log(res.data);
 			})
 			.catch(err => {
@@ -125,6 +131,7 @@ const CreateCategoryModal = ({ isOpen, onClose }) => {
 							disabled={isLoading ? true : false}
 							onClick={handleSubmit}
 							colorScheme='teal'
+							size={"sm"}
 						>
 							{isLoading ? "Loading..." : "Saves"}
 						</Button>

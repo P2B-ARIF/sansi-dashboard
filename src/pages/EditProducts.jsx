@@ -1,4 +1,11 @@
-import { Button, Input, Select, Spinner } from "@chakra-ui/react";
+import {
+	Button,
+	FormControl,
+	FormLabel,
+	Input,
+	Spinner,
+	Switch,
+} from "@chakra-ui/react";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
@@ -6,8 +13,10 @@ import { useEffect } from "react";
 import { useToast } from "@chakra-ui/react";
 import { format } from "date-fns";
 import CreateDesc from "./../components/CreateDesc";
-import { useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
+import { GetSpecificProduct } from "../api/products";
+import { removeUser } from "../toolkit/UserSlice";
 
 const EditProducts = () => {
 	const { edit } = useParams();
@@ -16,54 +25,84 @@ const EditProducts = () => {
 		formState: { errors },
 		handleSubmit,
 	} = useForm();
-	const { products, isLoading: productLoading } = useSelector(
-		state => state.products,
-	);
-	const { specification, isLoading: loading } = useSelector(
-		state => state.categorySpec,
-	);
+	// const { products, isLoading: productLoading } = useSelector(
+	// 	state => state.products,
+	// );
+	const { specification } = useSelector(state => state.categorySpec);
 
-	const [findProduct, setFindProduct] = useState([]);
+	const [findProduct, setFindProduct] = useState({});
 	const [images, setImages] = useState(null);
-	const [imageUrl, setImageUrl] = useState(findProduct?.imageUrl);
+	const [imageUrl, setImageUrl] = useState("");
 	const toast = useToast();
 	const [isLoading, setIsLoading] = useState(false);
 	const [cate, setCate] = useState(findProduct?.category);
 	const [desc, setDesc] = useState(findProduct?.spec);
+	const [fetchingLoading, setFetchingLoading] = useState(false);
+	const dispatch = useDispatch();
+	const navigate = useNavigate();
+	const [isFlashSaleOn, setIsFlashSaleOn] = useState(false);
+
 
 	useEffect(() => {
 		setDesc(null);
 	}, []);
 
 	useEffect(() => {
-		const find = products.find(product => product.product_Id === edit);
-		setFindProduct(find);
-		setCate(find?.category);
+		// const find = products.find(product => product?.product_Id === edit);
+		setFetchingLoading(true);
+		const fetch = async () => {
+			try {
+				const data = await GetSpecificProduct(edit);
+				if (data) {
+					setCate(data?.category);
+					setFindProduct(data);
+					setImageUrl(data?.imageUrl);
+					setFetchingLoading(false);
+					if (data?.flash) {
+						setIsFlashSaleOn(data?.flash);
+					}
+				}
+
+				if (data.access === false) {
+					dispatch(removeUser());
+					localStorage.removeItem("token_");
+				}
+			} catch (error) {
+				console.error("Error in useEffect:", error);
+			} finally {
+				setFetchingLoading(false);
+			}
+		};
+		fetch();
+
+		// setFindProduct(find);
+		// setCate(find?.category);
+
+		// this was has in use state
+		// setImageUrl(findProduct?.imageUrl);
 		if (cate?.length > 1) {
-			setDesc(find?.spec || specification[cate]);
+			setDesc(findProduct?.spec || specification[cate]);
 		}
-	}, [edit, products]);
+	}, [edit, dispatch]);
 
 	const handleSpec = spc => {
 		setCate(spc);
 		setDesc(null);
 		const timeoutId = setTimeout(() => {
 			setDesc(specification[spc]);
-		}, 2000);
+		}, 1500);
 
 		return () => {
 			clearTimeout(timeoutId);
 		};
 	};
 
-	const imageUrlLink = [];
 	const imageFunc = async () => {
+		const imageUrlLink = [];
 		setIsLoading(true);
 		if (images) {
-			console.log("first");
 			const url =
 				"https://api.imgbb.com/1/upload?key=6226ca30d95b139a79184223cfbc266a";
-			console.log("first");
 
 			for (const imageUrl of images) {
 				const formData = new FormData();
@@ -73,8 +112,8 @@ const EditProducts = () => {
 					.post(url, formData)
 					.then(res => {
 						setIsLoading(false);
-
 						imageUrlLink.push(res.data.data.url);
+						console.log(res.data.data.url);
 					})
 					.catch(err => {
 						toast({
@@ -86,28 +125,26 @@ const EditProducts = () => {
 							isClosable: true,
 						});
 						setIsLoading(false);
-
-						console.log(err);
+						console.log(err.message);
 					});
 			}
-			setImageUrl(imageUrlLink);
+			setImageUrl([...imageUrl, ...imageUrlLink]);
 			setImages(null);
 		}
 		setIsLoading(false);
 	};
 
-	// useEffect(() => {
-	// 	imageFunc();
-	// }, [images]);
+	useEffect(() => {
+		imageFunc();
+	}, [images]);
 
 	const onSubmit = async data => {
-		// setIsLoading(true);
+		setIsLoading(true);
 		const fns_PP = format(new Date(), "PP");
 		const fns_P = format(new Date(), "P");
 		const fns_pp = format(new Date(), "pp");
 
 		const create = {
-			product_Id: cate + Math.floor(Math.random() * 9000),
 			...data,
 			sizes: data.sizes.split(","),
 			discount: parseInt(data.discount),
@@ -115,8 +152,11 @@ const EditProducts = () => {
 			stock: parseInt(data.stock),
 			imageUrl,
 			category: cate,
-			spec: desc,
-			issueDate: {
+			spec: desc || findProduct.spec || specification[findProduct?.category],
+			issueDate: findProduct?.issueDate,
+			product_Id: findProduct?.product_Id,
+			flash: isFlashSaleOn,
+			updateDate: {
 				date: new Date(),
 				fns: {
 					fns_PP,
@@ -126,45 +166,68 @@ const EditProducts = () => {
 			},
 		};
 
-		// if (imageUrl.length > 0) {
-		// 	await axios
-		// 		.post(`${process.env.REACT_APP_SERVER_URL}/product/create`, create)
-		// 		.then(res => {
-		// 			console.log(res.data);
-		// 			toast({
-		// 				title: "Product created.",
-		// 				description: "We've created your product for you.",
-		// 				status: "success",
-		// 				position: "bottom-right",
-		// 				duration: 5000,
-		// 				isClosable: true,
-		// 			});
-		// 			setIsLoading(false);
-		// 		})
-		// 		.catch(err => {
-		// 			setIsLoading(false);
-		// 			console.log(err);
-		// 		});
-		// } else {
-		// 	setIsLoading(false);
-		// 	toast({
-		// 		title: "Image Upload Field",
-		// 		description: "Please select jpg, jpeg, & png format image.",
-		// 		status: "error",
-		// 		position: "bottom-right",
-		// 		duration: 5000,
-		// 		isClosable: true,
-		// 	});
-		// }
+		// console.log(create, "create", findProduct);
+
+		if (imageUrl?.length > 0) {
+			await axios
+				.put(
+					`${process.env.REACT_APP_SERVER_URL}/admin/product/update/${findProduct?._id}`,
+					create,
+					{
+						headers: {
+							"Content-Type": "application/json",
+							Authorization: `Bearer ${JSON.parse(
+								localStorage.getItem("token_"),
+							)}`,
+						},
+					},
+				)
+				.then(res => {
+					toast({
+						title: "Product created.",
+						description: "We've created your product for you.",
+						status: "success",
+						position: "bottom-right",
+						duration: 5000,
+						isClosable: true,
+					});
+					setIsLoading(false);
+					navigate(`/dashboard/${findProduct?.category}`);
+				})
+				.catch(err => {
+					setIsLoading(false);
+					console.log(err);
+				});
+		} else {
+			setIsLoading(false);
+			toast({
+				title: "Image Upload Field",
+				description: "Please select jpg, jpeg, & png format image.",
+				status: "error",
+				position: "bottom-right",
+				duration: 5000,
+				isClosable: true,
+			});
+		}
 	};
+
+	// console.log(findProduct.name)
+
+	if (fetchingLoading && findProduct?.name) {
+		return (
+			<div className='fixed top-0 left-[150px] h-[100vh] w-[100vw] flex items-center justify-center bg-slate-100'>
+				<Spinner />
+			</div>
+		);
+	}
 
 	return (
 		<div className='m-10'>
 			<div>
 				<h1 className='text-lg font-bold mb-5'>Add Product</h1>
 				<div className='col-span-2 flex items-center gap-3'>
-					{findProduct?.imageUrl &&
-						findProduct?.imageUrl?.map((img, i) => (
+					{imageUrl &&
+						imageUrl?.map((img, i) => (
 							<div key={i} className='relative'>
 								<img
 									className='h-[200px] w-[250px] object-cover rounded-lg'
@@ -173,7 +236,7 @@ const EditProducts = () => {
 								/>
 								<span
 									onClick={() => {
-										let filter = imageUrl.filter(image => image !== img);
+										let filter = imageUrl?.filter(image => image !== img);
 										setImageUrl(filter);
 									}}
 									className=' text-white flex w-[30px] h-[30px] cursor-pointer items-center justify-center bg-green-500 rounded-full text-xl absolute top-0 left-0'
@@ -182,9 +245,12 @@ const EditProducts = () => {
 								</span>
 							</div>
 						))}
+				</div>
+
+				<div className='w-[150px] mt-5'>
 					<label
 						htmlFor='image'
-						className='bg-purple-600 text-white px-5 py-2 rounded-md cursor-pointer flex mt-auto'
+						className='bg-purple-600 text-white px-4 py-1 rounded-md cursor-pointer flex mt-auto'
 					>
 						Upload Images
 					</label>
@@ -215,7 +281,7 @@ const EditProducts = () => {
 							type='text'
 							id='name'
 							name='name'
-							defaultValue={findProduct?.name}
+							defaultValue={findProduct.name}
 							{...register("name", { required: true })}
 						/>
 						<br />
@@ -327,9 +393,7 @@ const EditProducts = () => {
 							id='discount'
 							name='discount'
 							defaultValue={findProduct?.discount}
-							{...register("discount", {
-								required: "please fill up..! is required",
-							})}
+							{...register("discount", { required: true })}
 							aria-invalid={errors.discount ? "true" : "false"}
 						/>
 						<br />
@@ -357,6 +421,20 @@ const EditProducts = () => {
 							placeholder="Enter tags separated by commas (e.g., men's fashion, cotton shirt, formal wear)"
 							{...register("tags", { required: true })}
 						/>
+						<br />
+					</div>
+
+					<div className='flex items-center justify-center'>
+						<FormControl display='flex' alignItems='center'>
+							<FormLabel htmlFor='email-alerts' mb='0'>
+								Flash Sale is {isFlashSaleOn ? "on" : "off"}
+							</FormLabel>
+							<Switch
+								id='flash-sale'
+								isChecked={isFlashSaleOn}
+								onChange={() => setIsFlashSaleOn(!isFlashSaleOn)}
+							/>
+						</FormControl>
 						<br />
 					</div>
 

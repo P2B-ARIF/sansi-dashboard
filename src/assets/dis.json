@@ -54,10 +54,10 @@
 			"We get inspired by our customers' fidelity. Only we ensure fast, easy, and safe online shopping all over Bangladesh through online. Please choose your desired one before terminating the stock."
 		],
 		"specification": [
-			{ "Product Type": "Pajama" },
-			{ "Color": "White" },
-			{ "Material": "100% Cotton" },
-			{ "Gender": "Men" },
+			"Product Type: Pajama",
+			"Color: White",
+			"Material: 100% Cotton",
+			"Gender: Men",
 			"Very trendy and unique product ",
 			"High standard and Qualitiful",
 			"So much more comfortable to wear"
@@ -94,12 +94,12 @@
 			"Our trendy polo shirt is made of 100% cotton fabrics & GSM-220. So, it will give you a comfortable feeling. It is semi-fitting which will make you look more trendy & smart."
 		],
 		"specification": [
-			{ "Product Type": "Polo Shirt" },
-			{ "Color": "Pest" },
-			{ "Material": "100% Cotton" },
+			"Product Type: Polo Shirt",
+			"Color: Pest",
+			"Material: 100% Cotton",
 			"GSM-220",
-			{ "Gender": "Men" },
-			{ "Style": "Casual" },
+			"Gender: Men",
+			"Style: Casual",
 			"Fitting- Semi Fit",
 			"Standard and unique product",
 			"Comfortable to wear",
@@ -139,12 +139,12 @@
 			"The name T-shirt comes from the shape 'T'. The T-shirt of Ambarlife has short sleeves, a round neckline & no collar. Our T-shirt will pacify you in this warm. This is suitable for any situation as follows; Class, Tea adda, Eid, Marriage Ceremony, etc."
 		],
 		"specification": [
-			{ "Product Type": "T Shirt" },
-			{ "Color": "Sky" },
-			{ "Material": "100% Cotton" },
-			{ "Gender": "Men" },
-			{ "Style": "Casual" },
-			{ "Design": "Chest Print" },
+			"Product Type: T Shirt",
+			"Color: Sky",
+			"Material: 100% Cotton",
+			"Gender: Men",
+			"Style: Casual",
+			"Design: Chest Print",
 			"GSM-170",
 			"Standard and unique product",
 			"Comfortable to wear"
@@ -182,11 +182,11 @@
 			"Shirts generally have a collar, sleeves, and buttons down the front, allowing for easy wearing and removal. The collar can come in different styles such as point, spread, or button-down, each lending a unique aesthetic to the shirt. The sleeves can vary in length, ranging from long sleeves to short sleeves or even sleeveless."
 		],
 		"specification": [
-			{ "Product Type": "Shirt" },
-			{ "Color": "Maroon Check" },
-			{ "Material": "100% Cotton" },
-			{ "Gender": "Men" },
-			{ "Style": "Casual" },
+			"Product Type: Shirt",
+			"Color: Maroon Check",
+			"Material: 100% Cotton",
+			"Gender: Men",
+			"Style: Casual",
 			"Very trendy and unique product ",
 			"High standard and Qualitiful",
 			"So much more comfortable to wear"

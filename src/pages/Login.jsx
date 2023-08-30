@@ -4,11 +4,19 @@ import { MdAlternateEmail } from "react-icons/md";
 import { RiLockPasswordFill } from "react-icons/ri";
 import axios from "axios";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { addUser } from "../toolkit/UserSlice";
 
 const Login = () => {
 	const [loading, setLoading] = useState(false);
 	const navigate = useNavigate();
+	const [message, setMessage] = useState("");
+	const { user } = useSelector(state => state.user);
+	const dispatch = useDispatch();
+	const location = useLocation();
+
+	let from = location.state?.from?.pathname || "/dashboard";
 
 	const handleLogin = e => {
 		e.preventDefault();
@@ -18,22 +26,38 @@ const Login = () => {
 		const password = e.target.password.value;
 
 		axios
-			.put("http://localhost:5000/auth/login", { email, password })
+			.put(`${process.env.REACT_APP_SERVER_URL}/auth/login`, {
+				email,
+				password,
+			})
 			.then(res => {
 				setLoading(false);
-				localStorage.setItem(
-					"token",
-					JSON.stringify(`Bearer ${res.data.token}`),
-					navigate("/dashboard", { replace: true }),
-				);
+				if (res.data.token) {
+					localStorage.setItem("token_", JSON.stringify(res.data.token));
+
+					setTimeout(() => {
+						navigate(from, { replace: true });
+					}, 2000);
+				}
+				if (res.data.user) {
+					console.log(res.data.user, "user login");
+					dispatch(addUser(res.data.user));
+				}
 			})
 			.catch(err => {
 				setLoading(false);
+				if (err.response.data.message) {
+					setMessage(err.response.data.message);
+				}
 				console.log(err.message);
 			});
 	};
 
-	useEffect(() => {}, []);
+	useEffect(() => {
+		if (user) {
+			navigate("/dashboard");
+		}
+	}, [user, navigate]);
 
 	return (
 		<div className='bg-[#2C3237] min-h-screen w-full flex items-center justify-center'>
@@ -70,6 +94,7 @@ const Login = () => {
 							name='password'
 						/>
 					</div>
+					{message && <p className='text-teal-500 text-sm'> {message}</p>}
 
 					<div className='w-full'>
 						<button
